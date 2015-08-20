@@ -63,6 +63,11 @@ class Box
         'height' => 100
     );
 
+    /**
+     * @var int
+     */
+    protected $angle = 0;
+
     public function __construct(&$image)
     {
         $this->im = $image;
@@ -91,6 +96,14 @@ class Box
     public function setFontSize($v)
     {
         $this->fontSize = $v;
+    }
+
+    /**
+     * @param int $angle Font angle
+     */
+    public function setFontAngle($angle)
+    {
+        $this->angle = $angle;
     }
 
     /**
@@ -223,7 +236,7 @@ class Box
             default:
                 $yAlign = 0;
         }
-        
+
         $n = 0;
         foreach ($lines as $line) {
             $box = $this->calculateBox($line);
@@ -242,8 +255,11 @@ class Box
             $yShift = $lineHeightPx * (1 - $this->baseline);
 
             // current line X and Y position
-            $xMOD = $this->box['x'] + $xAlign;
             $yMOD = $this->box['y'] + $yAlign + $yShift + ($n * $lineHeightPx);
+            if($this->angle) {
+                $xAlign += tan(deg2rad($this->angle)) * ($yAlign + $yShift + ($n * $lineHeightPx));
+            }
+            $xMOD = $this->box['x'] + $xAlign;
             
             if ($this->debug) {
                 // Marks current line with color
@@ -290,7 +306,7 @@ class Box
 
     protected function calculateBox($text)
     {
-        return imageftbbox($this->getFontSizeInPoints(), 0, $this->fontFace, $text);
+        return imageftbbox($this->getFontSizeInPoints(), $this->angle, $this->fontFace, $text);
     }
 
     protected function drawInternal($x, $y, Color $color, $text)
@@ -298,7 +314,7 @@ class Box
         imagefttext(
             $this->im,
             $this->getFontSizeInPoints(),
-            0, // no rotation
+            $this->angle, // no rotation
             $x,
             $y,
             $color->getIndex($this->im),
