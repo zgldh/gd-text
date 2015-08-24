@@ -228,6 +228,7 @@ class Box
         switch ($this->alignY) {
             case 'center':
                 $yAlign = ($this->box['height'] / 2) - ($textHeight / 2);
+                $yAlign = ($yAlign < 0)?0:$yAlign;
                 break;
             case 'bottom':
                 $yAlign = $this->box['height'] - $textHeight;
