@@ -198,14 +198,38 @@ class Box
         foreach ($explicitLines as $line) {
             // Check every line if it needs to be wrapped
             $words = explode(" ", $line);
-            $line = $words[0];
-            for ($i = 1; $i < count($words); $i++) {
-                $box = $this->calculateBox($line." ".$words[$i]);
-                if (($box[4]-$box[6]) >= $this->box['width']) {
-                    $lines[] = $line;
-                    $line = $words[$i];
+            $firstSplit = $this->calculateSplit($words[0], $this->box['width']);
+            $buffer = null;
+            if($firstSplit['word'] == null) {
+                $line = $words[0];
+            } else {
+                $line = $firstSplit['word'];
+                $buffer = $firstSplit['rest'];
+            }
+            for ($i = 1; $i < count($words) || $buffer != null; $i++) {
+                if($buffer != null) {
+                    $i--;
+                    $word = $buffer;
+                    $buffer = null;
                 } else {
-                    $line .= " ".$words[$i];
+                    $word = $words[$i];
+                }
+                $box = $this->calculateBox($line . " " . $word);
+                if (($box[4] - $box[6]) >= $this->box['width']) {
+                    $left = $this->calculateBox($line . " ");
+                    $split = $this->calculateSplit($word, $this->box['width'] - ($left[4] - $left[6]));
+                    if ($split['word'] == null) {
+                        $lines[] = $line;
+                        $buffer = $split['rest'];
+                        $line = "";
+                    } else {
+                        $line .= " " . $split['word'];
+                        $lines[] = $line;
+                        $buffer = $split['rest'];
+                        $line = "";
+                    }
+                } else {
+                    $line .= " " . $word;
                 }
             }
             $lines[] = $line;
@@ -224,7 +248,7 @@ class Box
 
         $lineHeightPx = $this->lineHeight * $this->fontSize;
         $textHeight = count($lines) * $lineHeightPx;
-        
+
         switch ($this->alignY) {
             case 'center':
                 $yAlign = ($this->box['height'] / 2) - ($textHeight / 2);
@@ -261,7 +285,7 @@ class Box
                 $xAlign += tan(deg2rad($this->angle)) * ($yAlign + $yShift + ($n * $lineHeightPx));
             }
             $xMOD = $this->box['x'] + $xAlign;
-            
+
             if ($this->debug) {
                 // Marks current line with color
                 $this->drawFilledRectangle(
@@ -272,7 +296,7 @@ class Box
                     new Color(rand(1, 180), rand(1, 180), rand(1, 180))
                 );
             }
-            
+
             if ($this->textShadow !== false) {
                 $this->drawInternal(
                     $xMOD + $this->textShadow['x'],
@@ -308,6 +332,37 @@ class Box
     protected function calculateBox($text)
     {
         return imageftbbox($this->getFontSizeInPoints(), $this->angle, $this->fontFace, $text);
+    }
+
+    private function calculateSplit($fullword, $widthLeft)
+    {
+        $word = $fullword;
+        $rest = null;
+        $box = $this->calculateBox($word);
+        if(($box[4]-$box[6]) > $widthLeft) {
+            if(strlen($word) < 5) {
+                $word = "";
+                $rest = $fullword;
+            } else {
+                if ($widthLeft > $this->box['width'] / 2) {
+                    $rest = substr($word, -2);
+                    $word = substr($word, 0, -2);
+                    $boxWord = $this->calculateBox($word);
+                    if (($boxWord[4] - $boxWord[6]) > $widthLeft) {
+                        $split = $this->calculateSplit($word, $widthLeft);
+                        $word = $split['word'];
+                        $rest = $split['rest'] . $rest;
+                    }
+                } else {
+                    $word = null;
+                    $rest = $fullword;
+                }
+            }
+        }
+        return array(
+            'word' => $word,
+            'rest' => $rest,
+        );
     }
 
     protected function drawInternal($x, $y, Color $color, $text)
