@@ -1,5 +1,14 @@
 gd-text
 =======
+###和原版区别
+
+本库继承自 https://github.com/Skalda/gd-text
+
+唯一区别是本库去掉了行首的空白，使得中文看起来更自然。
+
+###安装
+
+``` composer require zgldh/gd-text ```
 
 ###Basic usage example
 ```php
