@@ -8,7 +8,7 @@ gd-text
 
 ###安装
 
-``` composer require zgldh/gd-text ```
+``` composer require zgldh/gd-text-for-chinese ```
 
 ###Basic usage example
 ```php

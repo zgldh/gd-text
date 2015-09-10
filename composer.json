@@ -1,6 +1,6 @@
 {
-    "name": "zgldh/gd-text",
-    "description": "A class drawing multiline and aligned text on pictures. Uses GD extension.",
+    "name": "zgldh/gd-text-for-chinese",
+    "description": "A class drawing multiline and aligned text on pictures. Uses GD extension. For Chinese optimized.",
     "license": "MIT",
     "require": {
         "php": ">=5.3",
