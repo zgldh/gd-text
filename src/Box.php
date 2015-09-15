@@ -298,6 +298,7 @@
                     );
                 }
 
+                imagealphablending($this->im, true);
                 if ($this->textShadow !== false) {
                     $this->drawInternal(
                         $xMOD + $this->textShadow['x'],
