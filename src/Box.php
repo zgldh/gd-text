@@ -342,13 +342,13 @@
             $rest = null;
             $box = $this->calculateBox($word);
             if (($box[4] - $box[6]) > $widthLeft) {
-                if (strlen($word) < 5) {
+                if (mb_strlen($word) < 5) {
                     $word = "";
                     $rest = $fullword;
                 } else {
                     if ($widthLeft > $this->box['width'] / 2) {
-                        $rest = substr($word, -2);
-                        $word = substr($word, 0, -2);
+                        $rest = mb_substr($word, -2);
+                        $word = mb_substr($word, 0, -2);
                         $boxWord = $this->calculateBox($word);
                         if (($boxWord[4] - $boxWord[6]) > $widthLeft) {
                             $split = $this->calculateSplit($word, $widthLeft);
